@@ -96,23 +96,23 @@ type MetricSummary struct {
 }
 
 type Metric struct {
-	IntervalMetric int           `json:"intervalMetric"` // 1 by default
+	IntervalMetric int64         `json:"intervalMetric"` // 1 by default
 	IntervalUnit   string        `json:"intervalUnit"`   // "MIN",
 	Type           string        `json:"metricType"`     // "metricType": "STARS", "CALORIES", "STEPS", "FUEL"
 	Values         []MetricValue `json:"values"`         // "values": [ "1","2","3","4" , .... ]
 }
 
-type MetricValue int64
+type MetricValue float64
 
 func (self *MetricValue) UnmarshalJSON(data []byte) error {
 	if data[0] == '"' {
-		var val int64
-		if _, err := fmt.Sscanf(string(data), "\"%d\"", &val); err != nil {
+		var val float64
+		if _, err := fmt.Sscanf(string(data), "\"%f\"", &val); err != nil {
 			return err
 		}
 		*self = MetricValue(val)
 	} else {
-		val, err := strconv.Atoi(string(data))
+		val, err := strconv.ParseFloat(string(data), 64)
 		if err != nil {
 			return err
 		}
