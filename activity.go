@@ -4,6 +4,8 @@ import "time"
 import "fmt"
 import "strconv"
 
+// import "encoding/json"
+
 /*
 Activity Response struct
 */
@@ -48,8 +50,8 @@ func (self *Activities) GetPrevPage() string {
 type Activity struct {
 	Id            string        `json:"activityId"`
 	Type          string        `json:"activityType"`
-	StartTime     time.Time     `json:"startTime"`
-	TimeZone      TimeZone      `json:"activityTimeZone"`
+	StartTime     string        `json:"startTime"`
+	TimeZone      string        `json:"activityTimeZone"`
 	Status        string        `json:"status"`
 	DeviceType    string        `json:"deviceType"`
 	MetricSummary MetricSummary `json:"metricSummary"`
@@ -57,10 +59,20 @@ type Activity struct {
 	Metrics       []Metric      `json:"metrics"`
 }
 
-func (self *Activity) Location() time.Location {
-	return time.Location(self.TimeZone)
+func (self *Activity) GetTimeZone() *time.Location {
+	loc, _ := time.LoadLocation(self.TimeZone)
+	return loc
 }
 
+func (self *Activity) GetStartTime() time.Time {
+	tz := self.GetTimeZone()
+	// t, _ := time.ParseInLocation("2006-01-02T15:04:05Z", self.StartTime, tz)
+	t, _ := time.Parse("2006-01-02T15:04:05Z", self.StartTime)
+	return t.In(tz)
+	return t
+}
+
+/*
 type TimeZone time.Location
 
 func (self *TimeZone) UnmarshalJSON(data []byte) (err error) {
@@ -74,6 +86,7 @@ func (self *TimeZone) UnmarshalJSON(data []byte) (err error) {
 	}
 	return nil
 }
+*/
 
 type Tag struct {
 	Type  string `json:"tagType"`
